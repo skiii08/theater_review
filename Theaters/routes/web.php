@@ -18,6 +18,24 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/post', function() {
+    return view('post');
+});
+
+Route::get('/theaterTop', function() {
+    return view('theaterTop');
+});
+
+Route::get('/movieTop', function() {
+    return view('theaterTop');
+});
+
+Route::get('/movieTop', function() {
+    return view('mypageTop');
+});
+
+
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
