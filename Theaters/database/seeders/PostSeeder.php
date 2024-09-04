@@ -16,19 +16,27 @@ class PostSeeder extends Seeder
      */
     public function run(): void
     {
-        /*
-         DB::table('screen_numbers')->insert([
+                       DB::table('cinema_reviews')->insert([
+            [
+                'id' => 1,
+                'theater_id' => 1,
+                'user_id' => 1,
+                'viewing_date' => '2022-12-01', // 日付は通常 'YYYY-MM-DD' 形式で保存します
                 'screen_number' => 1,
-                'seeting_capacity' => 217,
-                'screen_size' => '4.4 × 10.6',
-                'sound_system' =>'デジタル7.1ch',
-                'projection_type' => ''
-         ]);
-         */
-          DB::table('theaters')->insert([
-                'theater_name' => 'OSシネマズミント神戸',
-                'adress' => '兵庫県神戸市中央区雲井通7-1-1ミント神戸9F',
-                'screen_number_id' => 1,
-         ]);      
-    }
+                'seat_number' => 'A4',
+                'review' => '席が近かったです',
+            ],
+            [
+                'id' => 2,
+                'theater_id' => 2,
+                'user_id' => 2,
+                'viewing_date' => '2022-10-24',
+                'screen_number' => 1,
+                'seat_number' => 'F5',
+                'review' => '音響が良かった',
+            ],
+        ]);
+         
+}
+
 }
