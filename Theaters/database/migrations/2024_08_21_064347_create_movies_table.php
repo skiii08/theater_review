@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('director', 50);
             $table->string('cast', 50);
             $table->string('story', 500);
-            $table->string('poster_uri', 500); 
+        $table->string('poster_uri', 500); 
 
         });
     }

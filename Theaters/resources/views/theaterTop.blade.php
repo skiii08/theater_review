@@ -8,12 +8,22 @@
         .review-container {
             display: flex;
             justify-content: space-between;
+            flex-wrap: wrap;
         }
-        .review-box {
+        .theater_review {
             width: 22%;
             border: 1px solid #ccc;
             padding: 10px;
             margin: 10px 0;
+        }
+        .detail-button {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 3px;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -22,25 +32,17 @@
 
     <section>
         <h2>最近のレビュー</h2>
-        <button>新しいレビューを投稿する</button>
+        <a href="{{ route('reviews.create') }}" class="detail-button">新しいレビューを投稿する</a>
 
         <div class="review-container">
-            <div class="review-box">
-                <h3>レビュータイトル1</h3>
-                <p>レビュー内容の一部...</p>
-            </div>
-            <div class="review-box">
-                <h3>レビュータイトル2</h3>
-                <p>レビュー内容の一部...</p>
-            </div>
-            <div class="review-box">
-                <h3>レビュータイトル3</h3>
-                <p>レビュー内容の一部...</p>
-            </div>
-            <div class="review-box">
-                <h3>レビュータイトル4</h3>
-                <p>レビュー内容の一部...</p>
-            </div>
+            @foreach ($theater_reviews as $theater_review)
+                <div class='theater_review'>
+                    <h2 class='theater_name'>{{ $theater_review->theater->theater_name }}</h2>
+                    <p class='adress'>{{ $theater_review->theater->adress }}</p>
+                    <p class='body'>{{ Str::limit($theater_review->review, 100) }}</p>
+                    <a href="{{ route('reviews.show', $theater_review->id) }}" class="detail-button">詳細を見る</a>
+                </div>
+            @endforeach
         </div>
     </section>
 
