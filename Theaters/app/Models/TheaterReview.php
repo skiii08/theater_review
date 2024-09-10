@@ -17,7 +17,7 @@ class TheaterReview extends Model
     'review',
 ];
 
-   protected $dates = ['viewing_date'];
+   protected $dates = ['viewing_date', 'created_at', 'updated_at'];
 
     public function theater()
     {

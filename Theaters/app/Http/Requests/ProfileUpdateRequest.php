@@ -18,6 +18,8 @@ class ProfileUpdateRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($this->user()->id)],
+            'status_message' => ['nullable', 'string', 'max:255'],
+        'theater_id' => ['nullable', 'exists:theaters,id'],
         ];
     }
 }

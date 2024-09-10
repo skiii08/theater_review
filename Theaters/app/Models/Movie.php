@@ -10,8 +10,13 @@ class Movie extends Model
     use HasFactory;
 
     protected $fillable = [
-        'id', 'title', 'date', 'time', 'genre', 'director', 'cast', 'story', 'poster_uri'
+         'title', 'date', 'time', 'genre', 'director', 'cast', 'story', 'poster_uri'
     ];
+    
+    public function reviews()
+{
+    return $this->hasMany(MovieReview::class);
+}
 
     public $incrementing = false; // IDは自動増分しない
 
