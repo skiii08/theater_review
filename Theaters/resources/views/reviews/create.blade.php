@@ -9,7 +9,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
-                    <form action="{{ route('reviews.store') }}" method="POST">
+                    <form action="{{ route('reviews.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="mb-4">
                             <label for="theater_id" class="block text-sm font-medium text-gray-700">映画館名:</label>
@@ -34,9 +34,18 @@
                             <label for="viewing_date" class="block text-sm font-medium text-gray-700">鑑賞日:</label>
                             <input type="date" name="viewing_date" id="viewing_date" required class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                         </div>
+                        
+                        <div class="mb-4">
+    <label for="image" class="block text-sm font-medium text-gray-700">画像</label>
+    <input type="file" name="image" id="image" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" accept="image/*" onchange="previewImage(this);">
+    <div id="imagePreview" class="mt-2" style="display: none;">
+        <img id="preview" src="#" alt="プレビュー" style="max-width: 300px; max-height: 200px;">
+    </div>
+</div>
+                        
                         <div class="mb-4">
                             <label for="theater_review" class="block text-sm font-medium text-gray-700">映画館レビュー:</label>
-                            <textarea name="theater_review" id="theater_review" maxlength="500" placeholder="500字以内で入力してください" required class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
+                            <textarea name="review" id="review" maxlength="500" placeholder="500字以内で入力してください" required class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
                         </div>
                         
                         <div class="mb-4">
@@ -77,7 +86,9 @@
     </div>
 
     @push('scripts')
-    <script>
+    
+    
+<script>
     $(document).ready(function() {
         console.log('Document ready');
 
@@ -85,6 +96,30 @@
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
+        });
+
+        function previewImage(input) {
+            var preview = document.getElementById('preview');
+            var previewDiv = document.getElementById('imagePreview');
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    previewDiv.style.display = 'block';
+                    // 画像データをローカルストレージに保存
+                    localStorage.setItem('selectedImage', e.target.result);
+                }
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.src = "#";
+                previewDiv.style.display = 'none';
+                localStorage.removeItem('selectedImage');
+            }
+        }
+
+        // 画像選択時にpreviewImage関数を呼び出す
+        $('#image').change(function() {
+            previewImage(this);
         });
 
         function getScreenNumbers(theaterId) {
@@ -129,7 +164,7 @@
                 screen_number: $('#screen_number').val(),
                 seat_number: $('#seat_number').val(),
                 viewing_date: $('#viewing_date').val(),
-                theater_review: $('#theater_review').val(),
+                review: $('#review').val(),
                 movie_rating: $('#movie_rating').val(),
                 movie_review: $('#movie_review').val()
             }));
@@ -144,7 +179,7 @@
             $('#theater_id').val(savedForm.theater_id);
             $('#seat_number').val(savedForm.seat_number);
             $('#viewing_date').val(savedForm.viewing_date);
-            $('#theater_review').val(savedForm.theater_review);
+            $('#review').val(savedForm.review);
             $('#movie_rating').val(savedForm.movie_rating);
             $('#movie_review').val(savedForm.movie_review);
 
@@ -158,12 +193,56 @@
             localStorage.removeItem('review_form');
         }
 
+        // 保存された画像データがあれば表示
+        var savedImage = localStorage.getItem('selectedImage');
+        if (savedImage) {
+            $('#preview').attr('src', savedImage);
+            $('#imagePreview').show();
+            
+            // Base64データをBlobに変換
+            var byteString = atob(savedImage.split(',')[1]);
+            var mimeString = savedImage.split(',')[0].split(':')[1].split(';')[0];
+            var ab = new ArrayBuffer(byteString.length);
+            var ia = new Uint8Array(ab);
+            for (var i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+            }
+            var blob = new Blob([ab], {type: mimeString});
+            
+            // Fileオブジェクトを作成し、フォームにセット
+            var fileName = "restored_image." + mimeString.split('/')[1];
+            var file = new File([blob], fileName, {type: mimeString});
+            var dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            $('#image')[0].files = dataTransfer.files;
+        }
+
         @if(isset($selectedMovie))
             console.log('Selected movie:', @json($selectedMovie));
             $('#selected_movie_title').val("{{ $selectedMovie['title'] }}");
             $('#selected_movie_id').val("{{ $selectedMovie['id'] }}");
         @endif
     });
-    </script>
+
+    // previewImage関数をグローバルスコープに移動
+    function previewImage(input) {
+        var preview = document.getElementById('preview');
+        var previewDiv = document.getElementById('imagePreview');
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                previewDiv.style.display = 'block';
+                // 画像データをローカルストレージに保存
+                localStorage.setItem('selectedImage', e.target.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            preview.src = "#";
+            previewDiv.style.display = 'none';
+            localStorage.removeItem('selectedImage');
+        }
+    }
+</script>
     @endpush
 </x-app-layout>

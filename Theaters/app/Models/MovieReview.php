@@ -16,6 +16,7 @@ class MovieReview extends Model
         'movie_review',
     ];
 
+
     protected $casts = [
         'movie_rating' => 'float',
     ];
@@ -34,4 +35,13 @@ class MovieReview extends Model
 {
     return $this->movie ? $this->movie->title : 'Unknown Movie';
 }
+    public function getMovieRatingAttribute($value)
+    {
+        return $value === null ? '未入力' : $value;
+    }
+
+    public function getMovieReviewAttribute($value)
+    {
+        return $value === null ? '未入力' : $value;
+    }
 }

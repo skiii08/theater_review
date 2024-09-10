@@ -156,6 +156,8 @@ return [
     */
 
     'providers' => ServiceProvider::defaultProviders()->merge([
+        
+        CloudinaryLabs\CloudinaryLaravel\CloudinaryServiceProvider::class, //この行を追加
         /*
          * Package Service Providers...
          */
@@ -169,6 +171,8 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
     ])->toArray(),
+    
+    CloudinaryLabs\CloudinaryLaravel\CloudinaryServiceProvider::class,
 
     /*
     |--------------------------------------------------------------------------
@@ -182,7 +186,13 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
+        
+        'Cloudinary' => CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::class,
         // 'Example' => App\Facades\Example::class,
     ])->toArray(),
+    
+    
+    
+    CloudinaryLabs\CloudinaryLaravel\CloudinaryServiceProvider::class,
 
 ];

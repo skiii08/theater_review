@@ -7,17 +7,21 @@ use App\Models\ScreenNumber;
 use App\Models\TheaterReview;
 use App\Models\MovieReview;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class ReviewController extends Controller
 {
-    public function create()
-    {
-        $theaters = Theater::all();
-        $selectedMovie = session('selected_movie');
-        session()->forget('selected_movie'); // セッションから削除
+   public function create(Request $request)
+{
+    $theaters = Theater::all();
+    $selectedMovie = session('selected_movie');
+    $oldImage = session('old_image');
+    session()->forget(['selected_movie', 'old_image']);
 
-        return view('reviews.create', compact('theaters', 'selectedMovie'));
-    }
+    return view('reviews.create', compact('theaters', 'selectedMovie', 'oldImage'));
+}
 
     public function getScreenNumbers($theaterId)
     {
@@ -26,54 +30,84 @@ class ReviewController extends Controller
     }
 
     public function store(Request $request)
-    {
-        try {
-        $validatedData = $request->validate([
-            'theater_id' => 'required|exists:theaters,id',
-            'screen_number' => 'required|integer',
-            'seat_number' => 'required|string',
-            'viewing_date' => 'required|date',
-            'theater_review' => 'required|string|max:500',
-            'movie_id' => 'required|exists:movies,id',
-            'movie_rating' => 'required|numeric|min:0|max:5',
-            'movie_review' => 'required|string',
-        ]);
+{
+    \Log::info('Review store method called');
+    \Log::info('Request data: ' . json_encode($request->all()));
 
-        // ログインユーザーのIDを追加
-        $userId = auth()->id();
+    try {
+       $validatedData = $request->validate([
+    'theater_id' => 'required|exists:theaters,id',
+    'viewing_date' => 'nullable|date',
+    'screen_number' => 'nullable|integer',
+    'seat_number' => 'nullable|string',
+    'review' => 'nullable|string|max:500',
+    'movie_id' => 'required|exists:movies,id',
+    'movie_rating' => 'nullable|numeric|min:0|max:5',
+    'movie_review' => 'nullable|string',
+    'image' => 'nullable|image|max:2048',
+]);
+
+        \Log::info('Validation passed');
+
+        // 画像のアップロード処理
         
-        \Log::info('Validated Data:', $validatedData);
-        \Log::info('User ID:', ['user_id' => $userId]);
 
-
-        // MovieReviewの作成
-        $movieReview = MovieReview::create([
-            'movie_id' => $validatedData['movie_id'],
-            'movie_rating' => $validatedData['movie_rating'],
-            'movie_review' => $validatedData['movie_review'],
-            'user_id' => $userId,
-        ]);
-
-        // TheaterReviewの作成
-        $theaterReview = TheaterReview::create([
-            'theater_id' => $validatedData['theater_id'],
-            'user_id' => $userId,
-            'viewing_date' => $validatedData['viewing_date'],
-            'screen_number' => $validatedData['screen_number'],
-            'seat_number' => $validatedData['seat_number'],
-            'review' => $validatedData['theater_review'],
-        ]);
+        $theaterReview = new TheaterReview([
+    'theater_id' => $validatedData['theater_id'],
+    'user_id' => auth()->id(),
+    'screen_number' => $validatedData['screen_number'],
+    'seat_number' => $validatedData['seat_number'],
+    'viewing_date' => $validatedData['viewing_date'],
+    'review' => $validatedData['review'],  // 'theater_review' から 'review' に変更
+]);
         
-        \Log::info('Theater Review Created:', $theaterReview->toArray());
-
-        return redirect()->route('reviews.show', $theaterReview->id)->with('success', 'レビューが投稿されました。');
-    
-        } catch (\Exception $e) {
-        \Log::error('Error in store method: ' . $e->getMessage());
-        return back()->with('error', 'レビューの投稿中にエラーが発生しました。');
-    }
+        \Log::info('Theater Review object:', ['theaterReview' => $theaterReview]);
+        
+        if ($request->hasFile('image')) {
+        $uploadedFileUrl = Cloudinary::upload($request->file('image')->getRealPath())->getSecurePath();
+        
+                if ($theaterReview !== null) {
+            $theaterReview->image_url = $uploadedFileUrl;
+        } else {
+            \Log::error('Theater Review object is null');
+            return back()->with('error', 'レビューの作成に失敗しました。');
         }
+    }
 
+
+
+        if ($theaterReview->save()) {
+            \Log::info('Theater Review saved successfully');
+
+            $movieReview = new MovieReview([
+    'movie_id' => $validatedData['movie_id'],
+    'user_id' => auth()->id(),
+    'movie_rating' => $validatedData['movie_rating'],
+    'movie_review' => $validatedData['movie_review'],
+]);
+
+            if ($movieReview->save()) {
+                \Log::info('Movie Review saved successfully');
+                return redirect()->route('theater.top')->with('success', 'レビューが投稿されました。');
+            } else {
+                \Log::error('Failed to save movie review');
+                return back()->with('error', '映画レビューの保存に失敗しました。');
+            }
+        } else {
+            \Log::error('Failed to save theater review');
+            return back()->with('error', '映画館レビューの保存に失敗しました。');
+        }
+    } catch (\Exception $e) {
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imagePath = $image->store('temp', 'public');
+            session(['old_image' => asset('storage/' . $imagePath)]);
+        }
+        \Log::error('Exception in store method: ' . $e->getMessage());
+        \Log::error('Stack trace: ' . $e->getTraceAsString());
+        return back()->with('error', 'エラーが発生しました: ' . $e->getMessage())->withInput();
+    }
+}
     public function show(TheaterReview $review)
     {
         $review->load('theater');

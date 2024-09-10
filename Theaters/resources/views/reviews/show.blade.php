@@ -16,6 +16,11 @@
                             <p><strong>座席番号:</strong> {{ $review->seat_number }}</p>
                             <p><strong>鑑賞日:</strong> {{ \Carbon\Carbon::parse($review->viewing_date)->format('Y年m月d日') }}</p>
                             <p><strong>投稿日時:</strong> {{ \Carbon\Carbon::parse($review->created_at)->format('Y年m月d日 H:i') }}</p>
+                            @if($review->image_url)
+    <div class="mb-4">
+        <img src="{{ $review->image_url }}" alt="Review Image" class="max-w-full h-auto">
+    </div>
+@endif
                         </div>
                     </div>
 
