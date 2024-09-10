@@ -32,10 +32,10 @@
             <label for="seat_number">座席番号:</label>
             <input type="text" name="seat_number" id="seat_number" value="{{ $review->seat_number }}" required>
         </div>
-        <div>
-            <label for="viewing_date">鑑賞日:</label>
-            <input type="date" name="viewing_date" id="viewing_date" value="{{ $review->viewing_date }}" required>
-        </div>
+       <div>
+    <label for="viewing_date">鑑賞日:</label>
+    <input type="date" name="viewing_date" id="viewing_date" value="{{ $review->viewing_date instanceof \Carbon\Carbon ? $review->viewing_date->format('Y-m-d') : $review->viewing_date }}" required>
+</div>
         <div>
             <label for="review">レビュー:</label>
             <textarea name="review" id="review" maxlength="500" placeholder="500字以内で入力してください" required>{{ $review->review }}</textarea>

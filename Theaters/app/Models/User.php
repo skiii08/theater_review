@@ -42,4 +42,16 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+    
+    public function theaterReviews()
+{
+    return $this->hasMany(TheaterReview::class);
 }
+
+public function movieReviews()
+{
+    return $this->hasMany(MovieReview::class);
+}
+}
+
+
