@@ -8,6 +8,7 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\MovieSearchController;
 
 
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -18,6 +19,8 @@ use App\Http\Controllers\MovieSearchController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+//映画館一覧表示関連
 
 Route::get('/posts', [PostController::class, 'index']); 
 
@@ -32,16 +35,25 @@ Route::get('/reviews/{review}', [ReviewController::class, 'show'])->name('review
 Route::get('/get-screen-numbers/{theaterId}', [ReviewController::class, 'getScreenNumbers'])->name('get.screen.numbers');
 
 
-Route::get('/', function () {
-    return view('welcome');
-});
+
+
+//編集・削除関連
 
 Route::get('/reviews/{review}/edit', [ReviewController::class, 'edit'])->name('reviews.edit');
 Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
 
+
+Route::get('/reviews/{review}', [ReviewController::class, 'show'])->name('reviews.show');
+
 Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
 
-Route::get('movies/search',[MovieSearchController::class, 'search']);
+
+
+
+//ログイン関連
+Route::get('/', function () {
+    return view('welcome');
+});
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -53,37 +65,17 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-
-
 require __DIR__.'/auth.php';
 
-/*
 
 
-Route::get('/post', function() {
-    return view('post');
-});
+//映画検索関連
+Route::get('/searchTop', [MovieSearchController::class, 'top'])->name('movies.search');
+Route::get('/search', [MovieSearchController::class, 'search'])->name('movies.search.get');
+Route::get('/movie/{id}', [MovieSearchController::class, 'show'])->name('movies.show');
+Route::post('/movie/save', [MovieSearchController::class, 'save'])->name('movies.save');
 
 
-Route::get('/theaterTop', function() {
-    return view('theaterTop');
-});
-
-
-
-
-Route::get('/theaterTop', [PostController::class, 'theaterTop']);
-
-
-Route::get('/movieTop', function() {
-    return view('theaterTop');
-});
-
-Route::get('/movieTop', function() {
-    return view('mypageTop');
-});
-
-*/
 
 
 

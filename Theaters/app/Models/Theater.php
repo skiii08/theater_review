@@ -12,4 +12,9 @@ class Theater extends Model
     {
         return $this->hasMany(ScreenNumber::class);
     }
+    
+    public function reviews()
+{
+    return $this->hasMany(TheaterReview::class);
+}
 }
