@@ -21,6 +21,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'status_message',
+        'theater_id',
     ];
 
     /**
@@ -52,6 +54,12 @@ public function movieReviews()
 {
     return $this->hasMany(MovieReview::class);
 }
+
+ public function theater()
+    {
+        return $this->belongsTo(Theater::class);
+    }
+    
 }
 
 
