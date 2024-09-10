@@ -10,7 +10,7 @@ class Movie extends Model
     use HasFactory;
 
     protected $fillable = [
-         'title', 'date', 'time', 'genre', 'director', 'cast', 'story', 'poster_uri'
+         'id', 'title', 'date', 'time', 'genre', 'director', 'cast', 'story', 'poster_uri'
     ];
     
     public function reviews()

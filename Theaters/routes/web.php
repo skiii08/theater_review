@@ -8,17 +8,6 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\MovieController;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
-
 Route::get('/', function () {
     return view('welcome');
 });
@@ -36,9 +25,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/reviews/create', [ReviewController::class, 'create'])->name('reviews.create');
     Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
     Route::get('/reviews/{review}', [ReviewController::class, 'show'])->name('reviews.show');
-    Route::get('/reviews/{review}/edit', [ReviewController::class, 'edit'])->name('reviews.edit');
-    Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
-    Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+    // 他のレビュー関連のルート
 });
 
 Route::get('/get-screen-numbers/{theaterId}', [ReviewController::class, 'getScreenNumbers'])->name('get.screen.numbers');
@@ -53,19 +40,13 @@ Route::middleware('auth')->group(function () {
 });
 
 // 映画検索関連
-Route::get('/searchTop', [MovieSearchController::class, 'top'])->name('movies.search');
-Route::get('/search', [MovieSearchController::class, 'search'])->name('movies.search.get');
-Route::get('/movie/{id}', [MovieSearchController::class, 'show'])->name('movies.show');
-Route::post('/movie/save', [MovieSearchController::class, 'save'])->name('movies.save');
+Route::get('/movies/search', [MovieSearchController::class, 'top'])->name('movies.search');
+Route::get('/movies/search/result', [MovieSearchController::class, 'search'])->name('movies.search.get');
+Route::get('/movies/{id}', [MovieSearchController::class, 'show'])->name('movies.show');
+Route::post('/movies/save', [MovieSearchController::class, 'save'])->name('movies.save');
 
-//映画ページ関連
+// 映画ページ関連
 Route::get('/movies', [MovieController::class, 'index'])->name('movies.index');
-Route::get('/movie-reviews/{movie_review}', [MovieController::class, 'show'])->name('movie_reviews.show');
-Route::get('/movie-reviews/{movie_review}/edit', [MovieController::class, 'edit'])->name('movie_reviews.edit');
-Route::put('/movie-reviews/{movie_review}', [MovieController::class, 'update'])->name('movie_reviews.update');
-Route::delete('/movie-reviews/{movie_review}', [MovieController::class, 'destroy'])->name('movie_reviews.destroy');
-Route::get('/movies/{movie}', [MovieController::class, 'show'])->name('movies.show');
-Route::get('/movies/{movie}/edit', [MovieController::class, 'edit'])->name('movies.edit');
-Route::put('/movies/{movie}', [MovieController::class, 'update'])->name('movies.update');
+Route::resource('movie_reviews', MovieController::class)->except(['index', 'create', 'store']);
 
 require __DIR__.'/auth.php';
